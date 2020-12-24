@@ -45,13 +45,13 @@ async fn main() {
     // If token file not found, create empty file and exit
     let token_path = Path::new("token.txt");
     if !token_path.exists().await {
-        File::create(token_path).await.unwrap();
+        File::create(token_path).await.expect("Error while creating empty token file!");
         println!("Token file not found! Creating empty file and exiting");
         return;
     }
 
     // Read token from file and quit if token is empty
-    let token = fs::read_to_string(token_path).await.unwrap();
+    let token = fs::read_to_string(token_path).await.expect("Error while reading token from file!");
     if token.is_empty() {
         println!("Token file is empty! Shutting down");
         return;
@@ -63,7 +63,7 @@ async fn main() {
     let mut client = Client::builder(&token)
         .event_handler(Handler)
         .await
-        .expect("Err creating client");
+        .expect("Error while creating client!");
 
     // Finally, start a single shard, and start listening to events.
     //
