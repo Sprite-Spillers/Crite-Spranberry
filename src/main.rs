@@ -39,7 +39,7 @@ use std::{
 use serenity::prelude::*;
 use tokio::sync::Mutex;
 
-use commands::gm_tools::*;
+use commands::{admin::*, gm_tools::*, test::*,};
 
 const COMMAND_PREFIX: &str = "~";
 
@@ -51,6 +51,10 @@ impl EventHandler for Handler {
         println!("{} is connected!", ready.user.name);
     }
 }
+
+#[group]
+#[commands(say)]
+struct General;
 
 #[group]
 #[prefix = "game"]
@@ -125,6 +129,7 @@ async fn main() {
         })
         .before(before)
         .unrecognised_command(unknown_command)
+        .group(&GENERAL_GROUP)
         .group(&GAME_GROUP);
 
     // Log in
