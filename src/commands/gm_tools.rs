@@ -50,7 +50,7 @@ pub async fn rename(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 /// Create channel category for a game and give GMs permissions
 #[command]
 pub async fn add_channels(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    // TODO: If channel category exists, do nothing. Otherwise create new category
+    // TODO: If channel category exists, print error message. Otherwise create new category
     // with a text channel with the game name and a 
 
     msg.channel_id.say(&ctx.http, "Created new channel category for <game>!").await?;
