@@ -4,15 +4,39 @@ use async_std::fs;
 use async_std::fs::File;
 use async_std::path::Path;
 
+use std::{collections::{HashMap, HashSet}, env, fmt::Write, sync::Arc};
 use serenity::{
     async_trait,
-    model::{channel::Message, gateway::Ready},
-    prelude::*,
+    client::bridge::gateway::{ShardId, ShardManager},
+    framework::standard::{
+        Args, CommandOptions, CommandResult, CommandGroup,
+        DispatchError, HelpOptions, help_commands, Reason, StandardFramework,
+        // buckets::{RevertBucket, LimitedFor},
+        macros::{command, group, help, check, hook},
+    },
+    http::Http,
+    model::{
+        channel::{Channel, Message},
+        gateway::Ready,
+        id::UserId,
+        permissions::Permissions,
+    },
+    // utils::{content_safe, ContentSafeOptions},
 };
 
-// use commands::{
-//     // test::*;
-// };
+use serenity::prelude::*;
+use tokio::sync::Mutex;
+
+use commands::{
+    gm_tools::*,
+    manage_gms::*,
+};
+
+struct CommandCounter;
+
+impl TypeMapKey for CommandCounter {
+    type Value = HashMap<String, u64>;
+}
 
 struct Handler;
 
@@ -46,6 +70,34 @@ impl EventHandler for Handler {
     }
 }
 
+#[group]
+#[prefix="game"]
+#[description = "Tools for GMs to manage their games"]
+#[commands(create, invite_player, remove_player)]
+struct Game;
+
+// Define functions for the framework
+
+#[hook]
+async fn before(ctx: &Context, msg: &Message, command_name: &str) -> bool {
+    println!("Got command '{}' by user '{}'", command_name, msg.author.name);
+
+    // Increment the number of times this command has been run once. If
+    // the command's name does not exist in the counter, add a default
+    // value of 0.
+    let mut data = ctx.data.write().await;
+    let counter = data.get_mut::<CommandCounter>().expect("Expected CommandCounter in TypeMap.");
+    let entry = counter.entry(command_name.to_string()).or_insert(0);
+    *entry += 1;
+
+    true // if `before` returns false, command processing doesn't happen.
+}
+
+#[hook]
+async fn unknown_command(_ctx: &Context, _msg: &Message, unknown_command_name: &str) {
+    println!("Could not find command named '{}'", unknown_command_name);
+}
+
 #[tokio::main]
 async fn main() {
     // If token file not found, create empty file and exit
@@ -67,18 +119,48 @@ async fn main() {
         return;
     }
 
-    // Create a new instance of the Client, logging in as a bot. This will
-    // automatically prepend your bot token with "Bot ", which is a requirement
-    // by Discord for bot users.
+    let http = Http::new_with_token(&token);
+
+    // We will fetch your bot's owners and id
+    let (owners, bot_id) = match http.get_current_application_info().await {
+        Ok(info) => {
+            let mut owners = HashSet::new();
+            if let Some(team) = info.team {
+                owners.insert(team.owner_user_id);
+            } else {
+                owners.insert(info.owner.id);
+            }
+            match http.get_current_user().await {
+                Ok(bot_id) => (owners, bot_id.id),
+                Err(why) => panic!("Could not access the bot id: {:?}", why),
+            }
+        },
+        Err(why) => panic!("Could not access application info: {:?}", why),
+    };
+
+    let framework = StandardFramework::new()
+        .configure(|c| c
+                   .prefix("~")
+                   // In this case, if "," would be first, a message would never
+                   // be delimited at ", ", forcing you to trim your arguments if you
+                   // want to avoid whitespaces at the start of each.
+                   .delimiters(vec![", ", ","])
+                   // Sets the bot's owners. These will be used for commands that
+                   // are owners only.
+                   .owners(owners))
+
+        .before(before)
+        .unrecognised_command(unknown_command)
+        .group(&GAME_GROUP);
+
+    
+    // Log in
     let mut client = Client::builder(&token)
         .event_handler(Handler)
+        .framework(framework)
         .await
         .expect("Error while creating client!");
 
-    // Finally, start a single shard, and start listening to events.
-    //
-    // Shards will automatically attempt to reconnect, and will perform
-    // exponential backoff until it reconnects.
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
     }
