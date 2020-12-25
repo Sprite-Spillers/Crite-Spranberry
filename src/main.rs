@@ -4,15 +4,21 @@ use async_std::fs;
 use async_std::fs::File;
 use async_std::path::Path;
 
-use std::{collections::{HashMap, HashSet}, env, fmt::Write, sync::Arc};
 use serenity::{
     async_trait,
     client::bridge::gateway::{ShardId, ShardManager},
     framework::standard::{
-        Args, CommandOptions, CommandResult, CommandGroup,
-        DispatchError, HelpOptions, help_commands, Reason, StandardFramework,
+        help_commands,
         // buckets::{RevertBucket, LimitedFor},
-        macros::{command, group, help, check, hook},
+        macros::{check, command, group, help, hook},
+        Args,
+        CommandGroup,
+        CommandOptions,
+        CommandResult,
+        DispatchError,
+        HelpOptions,
+        Reason,
+        StandardFramework,
     },
     http::Http,
     model::{
@@ -23,13 +29,17 @@ use serenity::{
     },
     // utils::{content_safe, ContentSafeOptions},
 };
+use std::{
+    collections::{HashMap, HashSet},
+    env,
+    fmt::Write,
+    sync::Arc,
+};
 
 use serenity::prelude::*;
 use tokio::sync::Mutex;
 
-use commands::{
-    gm_tools::*,
-};
+use commands::gm_tools::*;
 
 const COMMAND_PREFIX: &str = "~";
 
@@ -43,7 +53,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[prefix="game"]
+#[prefix = "game"]
 #[description = "Tools for GMs to manage their games"]
 #[commands(create, invite, remove, rename)]
 struct Game;
@@ -52,7 +62,10 @@ struct Game;
 
 #[hook]
 async fn before(ctx: &Context, msg: &Message, command_name: &str) -> bool {
-    println!("Got command '{}' by user '{}'", command_name, msg.author.name);
+    println!(
+        "Got command '{}' by user '{}'",
+        command_name, msg.author.name
+    );
 
     true // if `before` returns false, command processing doesn't happen.
 }
@@ -98,23 +111,22 @@ async fn main() {
                 Ok(bot_id) => (owners, bot_id.id),
                 Err(why) => panic!("Could not access the bot id: {:?}", why),
             }
-        },
+        }
         Err(why) => panic!("Could not access application info: {:?}", why),
     };
 
     // Create framework for bot
     let framework = StandardFramework::new()
-        .configure(|c| c
-                   .prefix(COMMAND_PREFIX)
-                   // Sets the bot's owners. These will be used for commands that
-                   // are owners only.
-                   .owners(owners))
-
+        .configure(|c| {
+            c.prefix(COMMAND_PREFIX)
+                // Sets the bot's owners. These will be used for commands that
+                // are owners only.
+                .owners(owners)
+        })
         .before(before)
         .unrecognised_command(unknown_command)
         .group(&GAME_GROUP);
 
-    
     // Log in
     let mut client = Client::builder(&token)
         .event_handler(Handler)
