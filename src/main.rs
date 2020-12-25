@@ -42,18 +42,9 @@ impl EventHandler for Handler {
     }
 }
 
-// #[check]
-// #[name = "IsGM"]
-// async fn gm_check(_: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> Result<(), Reason> {
-    
-
-//     Ok(())
-// }
-
 #[group]
 #[prefix="game"]
 #[description = "Tools for GMs to manage their games"]
-// #[checks(IsGM)]
 #[commands(create, invite, remove, rename)]
 struct Game;
 

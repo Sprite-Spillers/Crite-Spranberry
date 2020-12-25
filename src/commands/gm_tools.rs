@@ -11,6 +11,14 @@ use serenity::framework::standard::{
 #[command]
 pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Creates a role with provided name and adds user to list of GMs for the role
+    let http = &ctx.http;
+    let guild = msg.guild_id.expect("Failed to get guild ID!");
+    let name = args.single::<String>().unwrap();
+    let role = guild.create_role(http, |r| r
+                                                    .hoist(true)
+                                                    .name(name))
+                                                    .await
+                                                    .expect("Failed to get role!");
 
     msg.channel_id.say(&ctx.http, "Created <game> role!").await?;
 
