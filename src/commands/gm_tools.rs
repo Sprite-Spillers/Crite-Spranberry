@@ -19,7 +19,7 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 
 /// Add a player to a game
 #[command]
-pub async fn invite_player(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Add player with mentions for role and user
 
     msg.channel_id.say(&ctx.http, "Added <player> to <game>!").await?;
@@ -29,7 +29,7 @@ pub async fn invite_player(ctx: &Context, msg: &Message, mut args: Args) -> Comm
 
 /// Remove a player from a game
 #[command]
-pub async fn remove_player(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn remove(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Remove player with mentions for role and user
 
     msg.channel_id.say(&ctx.http, "Removed <player> from <game>!").await?;
@@ -39,7 +39,7 @@ pub async fn remove_player(ctx: &Context, msg: &Message, mut args: Args) -> Comm
 
 /// Rename a game, including role and channel category
 #[command]
-pub async fn rename_game(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn rename(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Change name of role and associated channel category, if it exists
 
     msg.channel_id.say(&ctx.http, "Renamed <old name> to <new name>!").await?;

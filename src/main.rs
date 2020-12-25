@@ -73,7 +73,7 @@ impl EventHandler for Handler {
 #[group]
 #[prefix="game"]
 #[description = "Tools for GMs to manage their games"]
-#[commands(create, invite_player, remove_player)]
+#[commands(create, invite, remove, rename)]
 struct Game;
 
 // Define functions for the framework
@@ -81,14 +81,6 @@ struct Game;
 #[hook]
 async fn before(ctx: &Context, msg: &Message, command_name: &str) -> bool {
     println!("Got command '{}' by user '{}'", command_name, msg.author.name);
-
-    // Increment the number of times this command has been run once. If
-    // the command's name does not exist in the counter, add a default
-    // value of 0.
-    let mut data = ctx.data.write().await;
-    let counter = data.get_mut::<CommandCounter>().expect("Expected CommandCounter in TypeMap.");
-    let entry = counter.entry(command_name.to_string()).or_insert(0);
-    *entry += 1;
 
     true // if `before` returns false, command processing doesn't happen.
 }
