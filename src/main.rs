@@ -31,11 +31,7 @@ use commands::{
     gm_tools::*,
 };
 
-struct CommandCounter;
-
-impl TypeMapKey for CommandCounter {
-    type Value = HashMap<String, u64>;
-}
+const COMMAND_PREFIX: &str = "~";
 
 struct Handler;
 
@@ -117,7 +113,7 @@ async fn main() {
 
     let framework = StandardFramework::new()
         .configure(|c| c
-                   .prefix("~")
+                   .prefix(COMMAND_PREFIX)
                    // In this case, if "," would be first, a message would never
                    // be delimited at ", ", forcing you to trim your arguments if you
                    // want to avoid whitespaces at the start of each.
