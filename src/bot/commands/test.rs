@@ -31,3 +31,10 @@ async fn echo(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
 
     Ok(())
 }
+
+#[command]
+async fn guild(ctx: &Context, msg: &Message, args: Args) -> CommandResult {
+    println!("{}", ctx.cache.shard_count().await);
+
+    Ok(())
+}

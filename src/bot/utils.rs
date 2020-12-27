@@ -1,6 +1,17 @@
 use serenity::{
     model::prelude::ReactionType::Unicode, model::prelude::*, prelude::*, Error,
 };
+use regex::Regex;
+use log::{error, warn};
+
+pub(crate) async fn reply(ctx: &Context, msg: &Message, content: &String) {
+    if let Err(why) = msg.channel_id.say(&ctx.http, &content).await {
+        warn!(
+            "Failed to send message in #{} because\n{:?}",
+            msg.channel_id, why
+        );
+    }
+}
 
 pub(crate) async fn parse_member(
     ctx: &Context,
@@ -43,7 +54,7 @@ pub(crate) async fn parse_channel(
         let channel = match ctx.http.get_channel(id).await {
             Ok(c) => c,
             Err(_e) => return None,
-        };;
+        };
         Some(channel.to_owned())
     } else if channel_name.starts_with("<#") && channel_name.ends_with(">") {
         let re = Regex::new("[<#!>]").unwrap();
@@ -58,3 +69,38 @@ pub(crate) async fn parse_channel(
         None
     }
 }
+
+/*
+pub(crate) async fn parse_role(
+    ctx: &Context,
+    msg: &Message,
+    role_name: String,
+) -> Option<Member> {
+    let role: Role;
+    if let Ok(id) = role_name.parse::<u64>() {
+        member = match msg.guild_id
+                        .unwrap().???? {
+            Ok(m) => m,
+            Err(_e) => return None,
+        };
+        Some(member.to_owned())
+    } else if role_name.starts_with("<@") && role_name.ends_with(">") {
+        let re = Regex::new("[<@!>]").unwrap();
+        let member_id = re.replace_all(&role_name, "").into_owned();
+
+        member = match msg
+            .guild_id
+            .unwrap()
+            .member(ctx, UserId(member_id.parse::<u64>().unwrap()))
+            .await
+        {
+            Ok(m) => m,
+            Err(_e) => return None,
+        };
+
+        Some(member.to_owned())
+    } else {
+        None
+    }
+}
+*/

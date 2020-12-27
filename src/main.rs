@@ -1,4 +1,4 @@
-mod commands;
+mod bot;
 
 use async_std::fs;
 use async_std::fs::File;
@@ -39,7 +39,7 @@ use std::{
 use serenity::prelude::*;
 use tokio::sync::Mutex;
 
-use commands::{admin::*, gm_tools::*, test::*,};
+use bot::commands::{admin::*, gm_tools::*, test::*,};
 
 const COMMAND_PREFIX: &str = "~";
 
@@ -53,12 +53,13 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(echo)]
-struct General;
+#[commands(echo, guild)]
+struct Test;
 
 #[group]
 #[prefix = "game"]
 #[description = "Tools for GMs to manage their games"]
+#[only_in("guilds")]
 #[commands(create, invite, remove, rename)]
 struct Game;
 
@@ -129,7 +130,7 @@ async fn main() {
         })
         .before(before)
         .unrecognised_command(unknown_command)
-        .group(&GENERAL_GROUP)
+        .group(&TEST_GROUP)
         .group(&GAME_GROUP);
 
     // Log in

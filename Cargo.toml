@@ -8,5 +8,7 @@ edition = "2018"
 
 [dependencies]
 async-std = "1.8.0"
+regex = "1.4.2"
+log = "0.4.11"
 serenity = { version = "0.9.3", default-features = false, features = ["cache", "client", "gateway", "rustls_backend", "model", "framework", "standard_framework"] }
 tokio = { version = "0.2", features = ["macros"] } # Serenity does not yet support tokio 1.0
