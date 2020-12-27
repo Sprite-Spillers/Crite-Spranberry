@@ -1,3 +1,5 @@
+use super::utils::*;
+
 use serenity::framework::standard::{macros::command, Args, CommandResult};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -25,10 +27,29 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 
 /// Add a player to a game
 #[command]
+#[only_in("guilds")]
 pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Add player with mentions for role and user
+    if msg.mentions.is_empty() {
+        return Err("No users mentioned!".into());
+    }
 
-    
+    if msg.mention_roles.is_empty() {
+        return Err("No roles mentioned!".into());
+    }
+
+    for member in &msg.mentions {
+        let user: User = match args.single_quoted::<String>() {
+            Ok(arg) => match parse_member(ctx, msg, arg).await {
+                Some(m) => m.user,
+                None => {
+                    reply(ctx, msg, &"Unable to locate user".to_string()).await;
+                    return Ok(());
+                }
+            },
+            Err(_e) => msg.author.to_owned(),
+        };
+    }
 
     msg.channel_id
         .say(&ctx.http, "Added <player> to <game>!")

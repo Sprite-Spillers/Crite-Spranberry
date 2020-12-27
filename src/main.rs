@@ -53,7 +53,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(say)]
+#[commands(echo)]
 struct General;
 
 #[group]
