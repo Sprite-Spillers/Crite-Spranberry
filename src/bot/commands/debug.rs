@@ -25,3 +25,14 @@ pub async fn list_roles(ctx: &Context, msg: &Message) -> CommandResult {
 
     Ok(())
 }
+
+/// Print out a list of all channels in the server
+#[command]
+pub async fn list_channels(ctx: &Context, msg: &Message) -> CommandResult {
+    let guild_channels = ctx.cache.guild_channels(msg.guild_id.unwrap()).await.unwrap();
+    for (id, channel) in guild_channels {
+        println!("Channel: {}, ID: {}", channel.name, id);
+    }
+
+    Ok(())
+}

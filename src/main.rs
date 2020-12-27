@@ -57,7 +57,8 @@ impl EventHandler for Handler {
 struct Admin;
 
 #[group]
-#[commands(list, list_roles)]
+#[owners_only]
+#[commands(list, list_roles, list_channels)]
 struct Debug;
 
 #[group]
