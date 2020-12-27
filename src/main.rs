@@ -39,7 +39,7 @@ use std::{
 use serenity::prelude::*;
 use tokio::sync::Mutex;
 
-use bot::commands::{admin::*, gm_tools::*, test::*,};
+use bot::commands::{admin::*, gm_tools::*, test::*};
 
 const COMMAND_PREFIX: &str = "~";
 

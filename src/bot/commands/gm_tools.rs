@@ -31,22 +31,21 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     // TODO: Add player with mentions for role and user
     if !msg.mentions.is_empty() {
         for user in &msg.mentions {
-            ;
         }
     }
 
     let role: &Role;
     if !msg.mention_roles.is_empty() {
         let role_id = &msg.mention_roles[0];
-        role = ctx.cache
-                    .guild_roles(msg.guild_id.unwrap())
-                    .await
-                    .unwrap()
-                    .get(role_id)
-                    .unwrap();
+        role = ctx
+            .cache
+            .guild_roles(msg.guild_id.unwrap())
+            .await
+            .unwrap()
+            .get(role_id)
+            .unwrap();
     }
 
-    
     let user: User = match args.single_quoted::<String>() {
         Ok(arg) => match parse_member(ctx, msg, arg).await {
             Some(m) => m.user,

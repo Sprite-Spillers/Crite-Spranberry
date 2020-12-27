@@ -1,8 +1,6 @@
-use serenity::{
-    model::prelude::ReactionType::Unicode, model::prelude::*, prelude::*, Error,
-};
-use regex::Regex;
 use log::{error, warn};
+use regex::Regex;
+use serenity::{model::prelude::ReactionType::Unicode, model::prelude::*, prelude::*, Error};
 
 pub(crate) async fn reply(ctx: &Context, msg: &Message, content: &String) {
     if let Err(why) = msg.channel_id.say(&ctx.http, &content).await {
@@ -45,10 +43,7 @@ pub(crate) async fn parse_member(
     }
 }
 
-pub(crate) async fn parse_channel(
-    ctx: &Context,
-    channel_name: String,
-) -> Option<Channel> {
+pub(crate) async fn parse_channel(ctx: &Context, channel_name: String) -> Option<Channel> {
     let channel: Channel;
     if let Ok(id) = channel_name.parse::<u64>() {
         let channel = match ctx.http.get_channel(id).await {
@@ -59,7 +54,10 @@ pub(crate) async fn parse_channel(
     } else if channel_name.starts_with("<#") && channel_name.ends_with(">") {
         let re = Regex::new("[<#!>]").unwrap();
         let channel_id = re.replace_all(&channel_name, "").into_owned();
-        channel = match ctx.http.get_channel(channel_id.parse::<u64>().unwrap()).await
+        channel = match ctx
+            .http
+            .get_channel(channel_id.parse::<u64>().unwrap())
+            .await
         {
             Ok(m) => m,
             Err(_e) => return None,
