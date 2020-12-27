@@ -53,7 +53,7 @@ impl EventHandler for Handler {
 }
 
 #[group]
-#[commands(echo, guild)]
+#[commands(backup)]
 struct Admin;
 
 #[group]

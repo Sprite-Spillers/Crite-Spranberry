@@ -4,12 +4,16 @@ use serenity::model::prelude::*;
 use serenity::prelude::*;
 use serenity::framework::standard::{macros::command, Args, CommandResult};
 
-/// Tools for GMs/DMs
+// Tools for GMs/DMs
 
-/// Create a new game
+/// Create a new game and associated role, and assigns the role to the caller
+/// 
+/// Role name should be put in quotes if it contains spaces.
 #[command]
 pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    // TODO: Creates a role with provided name and adds user to list of GMs for the role
+    args.quoted();
+    args.trimmed();
+    
     let http = &ctx.http;
     let guild = msg.guild_id.expect("Failed to get guild ID!");
     let name = args.single::<String>().unwrap();
@@ -17,6 +21,9 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         .create_role(http, |r| r.hoist(true).name(name))
         .await
         .expect("Failed to get role!");
+    
+    let mut creator = find_member(ctx, msg, &msg.author.name).await.unwrap();
+    creator.add_role(&ctx.http, role.id).await?;
 
     msg.channel_id
         .say(&ctx.http, "Created <game> role!")
@@ -26,12 +33,14 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 }
 
 /// Add a player to a game
+/// 
+/// Accepts either mentions or (case insensitive) names for both the role and 
+/// the users. If the names contain spaces, they should be put in quotes.
 #[command]
 pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
-    // TODO: Add player with mentions for role and user
-    
     args.quoted();
     args.trimmed();
+
     let role_to_find = args.single::<String>().unwrap();
     let role_option = find_role(ctx, msg, &role_to_find).await;
 
@@ -70,9 +79,14 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 }
 
 /// Remove a player from a game
+/// 
+/// Accepts either mentions or (case insensitive) names for both the role and 
+/// the users. If the names contain spaces, they should be put in quotes.
 #[command]
 pub async fn remove(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Remove player with mentions for role and user
+    args.quoted();
+    args.trimmed();
 
     msg.channel_id
         .say(&ctx.http, "Removed <player> from <game>!")
@@ -85,6 +99,10 @@ pub async fn remove(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 #[command]
 pub async fn rename(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Change name of role and associated channel category, if it exists
+    // Display error if run by someone who does not have GM perms for that game
+    // and is not admin
+    args.quoted();
+    args.trimmed();
 
     msg.channel_id
         .say(&ctx.http, "Renamed <old name> to <new name>!")
@@ -97,7 +115,11 @@ pub async fn rename(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 #[command]
 pub async fn add_channels(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: If channel category exists, print error message. Otherwise create new category
-    // with a text channel with the game name and a
+    // with a text channel with the game name and give caller manage_channels permission in
+    // the category. Display error if run by someone who does not have GM perms for that game
+    // and is not admin
+    args.quoted();
+    args.trimmed();
 
     msg.channel_id
         .say(&ctx.http, "Created new channel category for <game>!")
