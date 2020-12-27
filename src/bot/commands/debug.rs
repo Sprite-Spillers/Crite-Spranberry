@@ -6,10 +6,10 @@ use serenity::framework::standard::{macros::command, Args, CommandResult};
 
 /// Print out a list of all members in the server
 #[command]
-pub async fn list(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn list(ctx: &Context, msg: &Message) -> CommandResult {
     let guild_members = ctx.cache.guild_field(msg.guild_id.unwrap(), |guild| guild.members.to_owned()).await.unwrap();
     for (id, member) in guild_members {
-        println!("{}", member.display_name());
+        println!("User: {}, ID: {}", member.display_name(), id);
     }
 
     Ok(())
