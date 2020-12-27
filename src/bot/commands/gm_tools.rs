@@ -1,8 +1,12 @@
 use crate::bot::utils::*;
 
-use serenity::framework::standard::{macros::command, Args, CommandResult};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
+use serenity::{
+    framework::standard::{macros::command, Args, CommandResult},
+    utils::parse_role,
+};
+use std::error::Error;
 
 /// Tools for GMs/DMs
 
@@ -29,22 +33,38 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 #[command]
 pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Add player with mentions for role and user
-    if !msg.mentions.is_empty() {
-        for user in &msg.mentions {
+
+    args.quoted();
+
+    let role_name = args.single::<String>().unwrap();
+    let role_option = parse_role(&role_name);
+    let guild_roles = ctx.cache.guild_roles(msg.guild_id.unwrap()).await.unwrap();
+    let mut found_role: Option<Role> = None;
+    if let Some(i) = role_option {
+        // If role mention found, use it
+        let id = RoleId::from(i);
+        found_role = Some(guild_roles.get(&id).unwrap().to_owned());
+    } else {
+        // Otherwise try to match by role name
+        for (_, role) in guild_roles {
+            if role.name.to_lowercase() == role_name.to_lowercase() {
+                found_role = Some(role);
+                break;
+            }
         }
     }
-
-    let role: &Role;
-    if !msg.mention_roles.is_empty() {
-        let role_id = &msg.mention_roles[0];
-        role = ctx
-            .cache
-            .guild_roles(msg.guild_id.unwrap())
-            .await
-            .unwrap()
-            .get(role_id)
-            .unwrap();
+    
+    // Couldn't find role, 
+    if let None = found_role {
+        msg.channel_id
+        .say(&ctx.http, format!("Couldn't find the role: {}!", role_name))
+        .await?;
+        // TODO: Return an error
+        return Ok(());
     }
+
+    println!("{}", &found_role.unwrap().name);
+
 
     let user: User = match args.single_quoted::<String>() {
         Ok(arg) => match parse_member(ctx, msg, arg).await {
@@ -57,8 +77,9 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         Err(_e) => msg.author.to_owned(),
     };
 
+    let player = "player";
     msg.channel_id
-        .say(&ctx.http, "Added <player> to <game>!")
+        .say(&ctx.http, format!("Added {} to {}!", player, role_name))
         .await?;
 
     Ok(())
