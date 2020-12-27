@@ -6,7 +6,7 @@ use async_std::path::Path;
 
 use serenity::{
     async_trait,
-    client::bridge::gateway::{ShardId, ShardManager},
+    client::bridge::gateway::{ShardId, ShardManager, GatewayIntents},
     framework::standard::{
         help_commands,
         // buckets::{RevertBucket, LimitedFor},
@@ -132,11 +132,16 @@ async fn main() {
         .unrecognised_command(unknown_command)
         .group(&TEST_GROUP)
         .group(&GAME_GROUP);
+    
+    // Set Gateway Intents
+    let mut intents = GatewayIntents::all();
+    intents.remove(GatewayIntents::GUILD_PRESENCES);
 
     // Log in
     let mut client = Client::builder(&token)
         .event_handler(Handler)
         .framework(framework)
+        .intents(intents)
         .await
         .expect("Error while creating client!");
 
