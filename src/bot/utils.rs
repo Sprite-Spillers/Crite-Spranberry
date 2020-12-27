@@ -1,17 +1,9 @@
-use log::{error, warn};
-use regex::Regex;
-use serenity::{Error, model::prelude::ReactionType::Unicode, model::prelude::*, prelude::*, utils::{parse_channel, parse_username}};
+use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username}};
 use serenity::{
-    framework::standard::{macros::command, Args, CommandResult},
+    framework::standard::Args,
     utils::parse_role,
 };
 
-
-pub(crate) enum Mentionable{
-    Member,
-    Role,
-    GuildChannel,
-}
 
 /// Searches for a member given the context, message, and user name/mention
 pub(crate) async fn find_member(ctx: &Context, msg: &Message, member_name: &String) -> Option<Member> {
