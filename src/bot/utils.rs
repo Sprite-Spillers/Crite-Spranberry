@@ -13,7 +13,14 @@ pub(crate) async fn find_member(ctx: &Context, msg: &Message, member_name: &Stri
     if let Some(i) = member_option {
         // If user mention found, use it
         let id = UserId::from(i);
-        return Some(guild_members.get(&id).unwrap().to_owned());
+        let member_option = guild_members.get(&id);
+        if let Some(member) = member_option {
+            return Some(member.to_owned());
+        } else {
+            println!("Couldn't find user: {} in find_member()! Maybe try enabling the Server Members Intent?", member_name);
+            
+            return None;
+        }
     } else {
         // Otherwise try to match by role name
         for (_, member) in guild_members {

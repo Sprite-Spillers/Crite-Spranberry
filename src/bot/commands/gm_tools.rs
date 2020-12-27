@@ -2,10 +2,7 @@ use crate::bot::utils::*;
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use serenity::{
-    framework::standard::{macros::command, Args, CommandResult},
-    utils::parse_role,
-};
+use serenity::framework::standard::{macros::command, Args, CommandResult};
 
 /// Tools for GMs/DMs
 
@@ -34,11 +31,12 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     // TODO: Add player with mentions for role and user
     
     args.quoted();
+    args.trimmed();
     let role_to_find = args.single::<String>().unwrap();
-    let role = find_role(ctx, msg, &role_to_find).await;
+    let role_option = find_role(ctx, msg, &role_to_find).await;
 
-    // Couldn't find role, 
-    if let None = role {
+    // Couldn't find role, print message and quit
+    if let None = role_option {
         msg.channel_id
         .say(&ctx.http, format!("Couldn't find the role: {}!", role_to_find))
         .await?;
@@ -46,28 +44,27 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         return Ok(());
     }
 
-    let role_name = &role.unwrap().name;
+    let role = role_option.unwrap();
+    let role_name = &role.name;
 
-    println!("{}", role_name);
-
-
-    // let user = match args.single_quoted::<String>() {
-    //     Ok(arg) => match find_member(ctx, msg, arg).await {
-    //         Some(m) => m.user,
-    //         None => {
-    //             reply(ctx, msg, &"Unable to locate user".to_string()).await;
-    //             return Ok(());
-    //         }
-    //     },
-    //     Err(_e) => msg.author.to_owned(),
-    // };
-
-    // println!(user);
-
-    let player = "player";
-    msg.channel_id
-        .say(&ctx.http, format!("Added {} to \"{}\"!", player, role_name))
-        .await?;
+    for arg in args.iter::<String>() {
+        let member_to_find = arg.unwrap();
+        let member_option = find_member(ctx, msg, &member_to_find).await;
+        
+        if let Some(mut member) = member_option {
+            // Add role to user
+            member.add_role(&ctx.http, role.id).await?;
+            msg.channel_id
+            .say(&ctx.http, format!("Added {} to \"{}\"!", member.display_name(), role_name))
+            .await?;
+        } else {
+            // Couldn't find user, go to next
+            msg.channel_id
+            .say(&ctx.http, format!("Couldn't find user: {}!", member_to_find))
+            .await?;
+            continue;
+        }
+    }
 
     Ok(())
 }
