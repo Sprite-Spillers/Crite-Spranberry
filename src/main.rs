@@ -39,7 +39,7 @@ use std::{
 use serenity::prelude::*;
 use tokio::sync::Mutex;
 
-use bot::commands::{admin::*, gm_tools::*, test::*};
+use bot::commands::{admin::*, debug::*, gm_tools::*, test::*};
 
 const COMMAND_PREFIX: &str = "~";
 
@@ -51,6 +51,14 @@ impl EventHandler for Handler {
         println!("{} is connected!", ready.user.name);
     }
 }
+
+#[group]
+#[commands(echo, guild)]
+struct Admin;
+
+#[group]
+#[commands(list)]
+struct Debug;
 
 #[group]
 #[commands(echo, guild)]
@@ -130,6 +138,8 @@ async fn main() {
         })
         .before(before)
         .unrecognised_command(unknown_command)
+        .group(&ADMIN_GROUP)
+        .group(&DEBUG_GROUP)
         .group(&TEST_GROUP)
         .group(&GAME_GROUP);
     
