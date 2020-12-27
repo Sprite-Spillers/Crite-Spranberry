@@ -6,7 +6,6 @@ use serenity::{
     framework::standard::{macros::command, Args, CommandResult},
     utils::parse_role,
 };
-use std::error::Error;
 
 /// Tools for GMs/DMs
 
@@ -33,53 +32,41 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 #[command]
 pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Add player with mentions for role and user
-
-    args.quoted();
-
-    let role_name = args.single::<String>().unwrap();
-    let role_option = parse_role(&role_name);
-    let guild_roles = ctx.cache.guild_roles(msg.guild_id.unwrap()).await.unwrap();
-    let mut found_role: Option<Role> = None;
-    if let Some(i) = role_option {
-        // If role mention found, use it
-        let id = RoleId::from(i);
-        found_role = Some(guild_roles.get(&id).unwrap().to_owned());
-    } else {
-        // Otherwise try to match by role name
-        for (_, role) in guild_roles {
-            if role.name.to_lowercase() == role_name.to_lowercase() {
-                found_role = Some(role);
-                break;
-            }
-        }
-    }
     
+    args.quoted();
+    let role_to_find = args.single::<String>().unwrap();
+    let role = find_role(ctx, msg, &role_to_find).await;
+
     // Couldn't find role, 
-    if let None = found_role {
+    if let None = role {
         msg.channel_id
-        .say(&ctx.http, format!("Couldn't find the role: {}!", role_name))
+        .say(&ctx.http, format!("Couldn't find the role: {}!", role_to_find))
         .await?;
         // TODO: Return an error
         return Ok(());
     }
 
-    println!("{}", &found_role.unwrap().name);
+    let role_name = &role.unwrap().name;
+
+    println!("{}", role_name);
 
 
-    let user: User = match args.single_quoted::<String>() {
-        Ok(arg) => match parse_member(ctx, msg, arg).await {
-            Some(m) => m.user,
-            None => {
-                reply(ctx, msg, &"Unable to locate user".to_string()).await;
-                return Ok(());
-            }
-        },
-        Err(_e) => msg.author.to_owned(),
-    };
+    // let user = match args.single_quoted::<String>() {
+    //     Ok(arg) => match find_member(ctx, msg, arg).await {
+    //         Some(m) => m.user,
+    //         None => {
+    //             reply(ctx, msg, &"Unable to locate user".to_string()).await;
+    //             return Ok(());
+    //         }
+    //     },
+    //     Err(_e) => msg.author.to_owned(),
+    // };
+
+    // println!(user);
 
     let player = "player";
     msg.channel_id
-        .say(&ctx.http, format!("Added {} to {}!", player, role_name))
+        .say(&ctx.http, format!("Added {} to \"{}\"!", player, role_name))
         .await?;
 
     Ok(())
