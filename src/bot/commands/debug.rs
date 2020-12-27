@@ -14,3 +14,14 @@ pub async fn list(ctx: &Context, msg: &Message) -> CommandResult {
 
     Ok(())
 }
+
+/// Print out a list of all roles in the server
+#[command]
+pub async fn list_roles(ctx: &Context, msg: &Message) -> CommandResult {
+    let guild_roles = ctx.cache.guild_roles(msg.guild_id.unwrap()).await.unwrap();
+    for (id, role) in guild_roles {
+        println!("Role: {}, ID: {}", role.name, id);
+    }
+
+    Ok(())
+}
