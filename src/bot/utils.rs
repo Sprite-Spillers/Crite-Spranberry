@@ -22,7 +22,7 @@ pub(crate) async fn find_member(ctx: &Context, msg: &Message, member_name: &str)
             return None;
         }
     } else {
-        // Otherwise try to match by role name
+        // Otherwise try to match by username
         for (_, member) in guild_members {
             if member.display_name().to_lowercase() == member_name.to_lowercase() || member.display_name().to_lowercase() == member_name.to_lowercase() {
                 return Some(member);
@@ -42,7 +42,7 @@ pub(crate) async fn find_channel(ctx: &Context, msg: &Message, channel_name: &st
         let id = ChannelId::from(i);
         return Some(channel_list.get(&id).unwrap().to_owned());
     } else {
-        // Otherwise try to match by role name
+        // Otherwise try to match by channel name
         for (_, channel) in channel_list {
             if channel.name.to_lowercase() == channel_name.to_lowercase() {
                 return Some(channel);
