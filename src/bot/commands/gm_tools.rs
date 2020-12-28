@@ -1,10 +1,10 @@
+//! Tools for GMs/DMs
+
 use crate::bot::utils::*;
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use serenity::framework::standard::{macros::command, Args, CommandResult};
-
-// Tools for GMs/DMs
 
 /// Create a new game and associated role, and assigns the role to the caller
 /// 

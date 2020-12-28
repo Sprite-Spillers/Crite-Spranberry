@@ -1,8 +1,8 @@
+//! Admin tools
+
 use serenity::framework::standard::{macros::command, Args, CommandResult};
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-
-/// Admin tools
 
 /// Backup current GM data
 #[command]
