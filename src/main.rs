@@ -145,8 +145,7 @@ async fn main() {
         .group(&GAME_GROUP);
     
     // Set Gateway Intents
-    let mut intents = GatewayIntents::all();
-    intents.remove(GatewayIntents::GUILD_PRESENCES);
+    let intents = GatewayIntents::all();
 
     // Log in
     let mut client = Client::builder(&token)

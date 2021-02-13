@@ -4,11 +4,8 @@ version = "0.1.0"
 authors = ["chenkail <40770208+Chenkail@users.noreply.github.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-async-std = "1.8.0"
-regex = "1.4.2"
-log = "0.4.11"
-serenity = { version = "0.9.3", default-features = false, features = ["cache", "client", "gateway", "rustls_backend", "model", "framework", "standard_framework"] }
-tokio = { version = "0.2", features = ["macros"] } # Serenity does not yet support tokio 1.0
+async-std = "1.x"
+serenity = { version = "0.10", default-features = false, features = ["cache", "client", "gateway", "rustls_backend", "model", "framework", "standard_framework"] }
+tokio = { version = "1.x", features = ["macros", "rt-multi-thread"] } # Serenity does not yet support tokio 1.0
