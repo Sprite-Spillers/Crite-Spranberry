@@ -79,16 +79,20 @@ async fn unknown_command(_ctx: &Context, _msg: &Message, unknown_command_name: &
 // Start the bot
 #[tokio::main]
 async fn main() {
-    // If token file not found, create empty file and exit
+    let res = env::var("DISCORD_TOKEN");
     let dotenv_path = Path::new(".env");
-    if !dotenv_path.exists().await {
-        File::create(dotenv_path)
-            .await
-            .expect("Error while creating empty .env file!");
-        panic!(".env file not found! Creating empty file and exiting");
-    }
+    if res.is_err() {
+        // If dotenv file not found, create empty file and exit
+        if !dotenv_path.exists().await {
+            File::create(dotenv_path)
+                .await
+                .expect("Error while creating empty .env file!");
+            println!(".env file not found! Creating empty file and exiting");
+            return;
+        }
 
-    dotenv::from_path(dotenv_path).expect("Error while loading environment variables!");
+        dotenv::from_path(dotenv_path).expect("Error while loading environment variables!");
+    }
 
     let token = env::var("DISCORD_TOKEN").expect("Error while getting token from environment!");
 

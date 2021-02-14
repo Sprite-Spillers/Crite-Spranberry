@@ -78,7 +78,7 @@ pub(crate) async fn import_json(path: &async_std::path::Path) -> async_std::io::
     let mut contents = String::new();
     file.read_to_string(&mut contents).await?;
 
-    let data: BotData = serde_json::de::from_str(&contents).unwrap();
+    let data: Result<BotData, serde_json::Error> = serde_json::de::from_str(&contents);
 
     Ok(())
 }
