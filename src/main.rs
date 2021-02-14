@@ -3,8 +3,6 @@ use async_std::path::Path;
 
 use std::{collections::HashSet, env};
 
-use dotenv;
-
 use serenity::prelude::*;
 use serenity::{
     async_trait,
@@ -37,13 +35,13 @@ struct Admin;
 #[commands(list, list_roles, list_channels)]
 struct Debug;
 
-
 #[group]
 #[prefix = "game"]
 #[description = "Tools for GMs to manage their games"]
 #[only_in("guilds")]
 #[commands(create, invite, remove, rename)]
 struct Game;
+
 
 // Event handler
 struct Handler;
