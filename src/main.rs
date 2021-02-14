@@ -128,6 +128,10 @@ async fn main() {
     // Set Gateway Intents
     let intents = GatewayIntents::all();
 
+    // Get data if it exists
+    let data = Path::new("data/bot.json");
+    utils::import_json(data).await;
+
     // Log in
     let mut client = Client::builder(&token)
         .event_handler(Handler)

@@ -1,6 +1,8 @@
-use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username}};
-use serenity::utils::parse_role;
+use async_std::fs::File;
+use async_std::io::prelude::ReadExt;
+use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username, parse_role}};
 
+use crate::data::*;
 
 /// Searches for a member given the context, message, and user name/mention
 pub(crate) async fn get_member(ctx: &Context, msg: &Message, member_name: &str) -> Option<Member> {
@@ -68,4 +70,15 @@ pub(crate) async fn get_role(ctx: &Context, msg: &Message, role_name: &str) -> O
     }
     
     return None;
+}
+
+/// Import data from json file
+pub(crate) async fn import_json(path: &async_std::path::Path) -> async_std::io::Result<()> {
+    let mut file = File::open(path).await?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).await?;
+
+    let data: BotData = serde_json::de::from_str(&contents).unwrap();
+
+    Ok(())
 }
