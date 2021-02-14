@@ -1,8 +1,8 @@
-use crate::bot::utils::*;
+// use crate::utils::*;
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use serenity::framework::standard::{macros::command, Args, CommandResult};
+use serenity::framework::standard::{macros::command, CommandResult};
 
 /// Print out a list of all members in the server
 #[command]

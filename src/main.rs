@@ -1,56 +1,32 @@
-mod bot;
-
-use async_std::fs;
 use async_std::fs::File;
 use async_std::path::Path;
 
+use std::{collections::HashSet, env};
+
+use dotenv;
+
+use serenity::prelude::*;
 use serenity::{
     async_trait,
-    client::bridge::gateway::{ShardId, ShardManager, GatewayIntents},
+    client::bridge::gateway::GatewayIntents,
     framework::standard::{
-        help_commands,
-        // buckets::{RevertBucket, LimitedFor},
-        macros::{check, command, group, help, hook},
-        Args,
-        CommandGroup,
-        CommandOptions,
-        CommandResult,
-        DispatchError,
-        HelpOptions,
-        Reason,
+        macros::{group, hook},
         StandardFramework,
     },
     http::Http,
     model::{
-        channel::{Channel, Message},
+        channel::Message,
         gateway::Ready,
-        id::UserId,
-        permissions::Permissions,
-    },
-    // utils::{content_safe, ContentSafeOptions},
-};
-use std::{
-    collections::{HashMap, HashSet},
-    env,
-    fmt::Write,
-    sync::Arc,
+    }
 };
 
-use serenity::prelude::*;
-use tokio::sync::Mutex;
 
-use bot::commands::{admin::*, debug::*, gm_tools::*, test::*};
+mod commands;
+mod sprite;
+mod utils;
+use commands::{admin::*, debug::*, gm_tools::*};
 
 const COMMAND_PREFIX: &str = "~";
-
-struct Handler;
-
-#[async_trait]
-impl EventHandler for Handler {
-    async fn ready(&self, _: Context, ready: Ready) {
-        println!("{} is connected!", ready.user.name);
-    }
-}
 
 #[group]
 #[commands(backup)]
@@ -61,9 +37,6 @@ struct Admin;
 #[commands(list, list_roles, list_channels)]
 struct Debug;
 
-#[group]
-#[commands(echo, guild)]
-struct Test;
 
 #[group]
 #[prefix = "game"]
@@ -72,8 +45,22 @@ struct Test;
 #[commands(create, invite, remove, rename)]
 struct Game;
 
-// Define functions for the framework
+// Event handler
+struct Handler;
 
+#[async_trait]
+impl EventHandler for Handler {
+    async fn ready(&self, _: Context, ready: Ready) {
+        println!("{} is connected!", ready.user.name);
+    }
+
+    async fn message(&self, ctx: Context, msg: Message) {
+        sprite::octopus_check(&ctx, &msg).await;
+    }
+}
+
+
+// Define functions for the framework
 #[hook]
 async fn before(ctx: &Context, msg: &Message, command_name: &str) -> bool {
     println!(
@@ -89,26 +76,22 @@ async fn unknown_command(_ctx: &Context, _msg: &Message, unknown_command_name: &
     println!("Could not find command named '{}'", unknown_command_name);
 }
 
+
+// Start the bot
 #[tokio::main]
 async fn main() {
     // If token file not found, create empty file and exit
-    let token_path = Path::new("token.txt");
-    if !token_path.exists().await {
-        File::create(token_path)
+    let dotenv_path = Path::new(".env");
+    if !dotenv_path.exists().await {
+        File::create(dotenv_path)
             .await
-            .expect("Error while creating empty token file!");
-        println!("Token file not found! Creating empty file and exiting");
-        return;
+            .expect("Error while creating empty .env file!");
+        panic!(".env file not found! Creating empty file and exiting");
     }
 
-    // Read token from file and quit if token is empty
-    let token = fs::read_to_string(token_path)
-        .await
-        .expect("Error while reading token from file!");
-    if token.is_empty() {
-        println!("Token file is empty! Shutting down");
-        return;
-    }
+    dotenv::from_path(dotenv_path).expect("Error while loading environment variables!");
+
+    let token = env::var("DISCORD_TOKEN").expect("Error while getting token from environment!");
 
     let http = Http::new_with_token(&token);
 
@@ -141,7 +124,6 @@ async fn main() {
         .unrecognised_command(unknown_command)
         .group(&ADMIN_GROUP)
         .group(&DEBUG_GROUP)
-        .group(&TEST_GROUP)
         .group(&GAME_GROUP);
     
     // Set Gateway Intents

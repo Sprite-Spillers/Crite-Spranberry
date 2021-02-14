@@ -1,6 +1,6 @@
 //! Tools for GMs/DMs
 
-use crate::bot::utils::*;
+use crate::utils::*;
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
@@ -45,7 +45,7 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     let role_option = find_role(ctx, msg, &role_to_find).await;
 
     // Couldn't find role, print message and quit
-    if let None = role_option {
+    if role_option.is_none() {
         msg.channel_id
         .say(&ctx.http, format!("Couldn't find the role: {}!", role_to_find))
         .await?;

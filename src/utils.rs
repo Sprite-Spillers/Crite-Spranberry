@@ -1,9 +1,5 @@
 use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username}};
-use serenity::{
-    framework::standard::Args,
-    utils::parse_role,
-};
-
+use serenity::utils::parse_role;
 
 /// Searches for a member given the context, message, and user name/mention
 pub(crate) async fn find_member(ctx: &Context, msg: &Message, member_name: &str) -> Option<Member> {
