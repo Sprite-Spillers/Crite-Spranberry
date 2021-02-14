@@ -1,7 +1,6 @@
 use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username}};
 use serenity::utils::parse_role;
 
-use crate::data::Game;
 
 /// Searches for a member given the context, message, and user name/mention
 pub(crate) async fn get_member(ctx: &Context, msg: &Message, member_name: &str) -> Option<Member> {
@@ -16,7 +15,7 @@ pub(crate) async fn get_member(ctx: &Context, msg: &Message, member_name: &str) 
             return Some(member.to_owned());
         } else {
             println!("Couldn't find user: {} in find_member()! Maybe try enabling the Server Members Intent?", member_name);
-            
+
             return None;
         }
     } else {
@@ -68,11 +67,5 @@ pub(crate) async fn get_role(ctx: &Context, msg: &Message, role_name: &str) -> O
         }
     }
     
-    return None;
-}
-
-/// Searches for a role given the context, message, and role name/mention
-pub(crate) async fn get_game(role_name: &str) -> Option<Game> {
-
     return None;
 }

@@ -6,7 +6,7 @@ use serenity::prelude::*;
 
 /// Backup current GM data
 #[command]
-pub async fn backup(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+pub async fn export(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     // TODO: Creates a text file with game roles and their associated GMs
 
     msg.channel_id

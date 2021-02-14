@@ -28,7 +28,7 @@ use commands::{admin::*, debug::*, gm_tools::*};
 const COMMAND_PREFIX: &str = "~";
 
 #[group]
-#[commands(backup)]
+#[commands(export)]
 struct Admin;
 
 #[group]

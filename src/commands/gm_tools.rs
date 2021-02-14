@@ -4,7 +4,6 @@ use crate::utils::*;
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
-use serenity::model::channel::ChannelType;
 use serenity::framework::standard::{macros::command, Args, CommandResult};
 
 use serde_json::{map::Map, value::Value};
@@ -27,6 +26,8 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     
     let mut creator = get_member(ctx, msg, &msg.author.name).await.unwrap();
     creator.add_role(&ctx.http, role.id).await?;
+
+
 
     msg.channel_id
         .say(&ctx.http, "Created <game> role!")
