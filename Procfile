@@ -1,1 +1,1 @@
-web: ./target/release/crite-spranberry
+worker: ./target/release/crite-spranberry
