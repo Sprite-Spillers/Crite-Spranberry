@@ -20,6 +20,7 @@ use serenity::{
 
 
 mod commands;
+mod data;
 mod sprite;
 mod utils;
 use commands::{admin::*, debug::*, gm_tools::*};
@@ -60,7 +61,7 @@ impl EventHandler for Handler {
 
 // Define functions for the framework
 #[hook]
-async fn before(ctx: &Context, msg: &Message, command_name: &str) -> bool {
+async fn before(_ctx: &Context, msg: &Message, command_name: &str) -> bool {
     println!(
         "Got command '{}' by user '{}'",
         command_name, msg.author.name

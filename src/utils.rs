@@ -1,8 +1,10 @@
 use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username}};
 use serenity::utils::parse_role;
 
+use crate::data::Game;
+
 /// Searches for a member given the context, message, and user name/mention
-pub(crate) async fn find_member(ctx: &Context, msg: &Message, member_name: &str) -> Option<Member> {
+pub(crate) async fn get_member(ctx: &Context, msg: &Message, member_name: &str) -> Option<Member> {
     let member_option = parse_username(&member_name);
 
     let guild_members = ctx.cache.guild_field(msg.guild_id.unwrap(), |guild| guild.members.to_owned()).await.unwrap();
@@ -30,7 +32,7 @@ pub(crate) async fn find_member(ctx: &Context, msg: &Message, member_name: &str)
 }
 
 /// Searches for a channel given the context, message, and channel name/mention
-pub(crate) async fn find_channel(ctx: &Context, msg: &Message, channel_name: &str) -> Option<GuildChannel> {
+pub(crate) async fn get_channel(ctx: &Context, msg: &Message, channel_name: &str) -> Option<GuildChannel> {
     let channel_option = parse_channel(&channel_name);
     let channel_list = ctx.cache.guild_channels(msg.guild_id.unwrap()).await.unwrap();
     if let Some(i) = channel_option {
@@ -50,7 +52,7 @@ pub(crate) async fn find_channel(ctx: &Context, msg: &Message, channel_name: &st
 }
 
 /// Searches for a role given the context, message, and role name/mention
-pub(crate) async fn find_role(ctx: &Context, msg: &Message, role_name: &str) -> Option<Role> {
+pub(crate) async fn get_role(ctx: &Context, msg: &Message, role_name: &str) -> Option<Role> {
     let role_option = parse_role(&role_name);
     let guild_roles = ctx.cache.guild_roles(msg.guild_id.unwrap()).await.unwrap();
     if let Some(i) = role_option {
@@ -66,5 +68,11 @@ pub(crate) async fn find_role(ctx: &Context, msg: &Message, role_name: &str) -> 
         }
     }
     
+    return None;
+}
+
+/// Searches for a role given the context, message, and role name/mention
+pub(crate) async fn get_game(role_name: &str) -> Option<Game> {
+
     return None;
 }

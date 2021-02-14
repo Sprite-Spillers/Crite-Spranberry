@@ -4,7 +4,10 @@ use crate::utils::*;
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
+use serenity::model::channel::ChannelType;
 use serenity::framework::standard::{macros::command, Args, CommandResult};
+
+use serde_json::{map::Map, value::Value};
 
 /// Create a new game and associated role, and assigns the role to the caller
 /// 
@@ -20,9 +23,9 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     let role = guild
         .create_role(http, |r| r.hoist(true).name(name))
         .await
-        .expect("Failed to get role!");
+        .expect("Failed to create role!");
     
-    let mut creator = find_member(ctx, msg, &msg.author.name).await.unwrap();
+    let mut creator = get_member(ctx, msg, &msg.author.name).await.unwrap();
     creator.add_role(&ctx.http, role.id).await?;
 
     msg.channel_id
@@ -42,7 +45,7 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     args.trimmed();
 
     let role_to_find = args.single::<String>().unwrap();
-    let role_option = find_role(ctx, msg, &role_to_find).await;
+    let role_option = get_role(ctx, msg, &role_to_find).await;
 
     // Couldn't find role, print message and quit
     if role_option.is_none() {
@@ -58,7 +61,7 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
 
     for arg in args.iter::<String>() {
         let member_to_find = arg.unwrap();
-        let member_option = find_member(ctx, msg, &member_to_find).await;
+        let member_option = get_member(ctx, msg, &member_to_find).await;
         
         if let Some(mut member) = member_option {
             // Add role to user
@@ -120,6 +123,14 @@ pub async fn add_channels(ctx: &Context, msg: &Message, mut args: Args) -> Comma
     // and is not admin
     args.quoted();
     args.trimmed();
+
+    let map: Map<String, Value> = Map::new();
+    // TODO: Figure out create_channel
+    // map.insert("my-test-channel".to_string(), ChannelType::Category.to_string());
+
+    let _ = ctx.http
+    .create_channel(*msg.guild_id.unwrap().as_u64(), &map)
+    .await;
 
     msg.channel_id
         .say(&ctx.http, "Created new channel category for <game>!")
