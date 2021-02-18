@@ -1,12 +1,17 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use serde::{Serialize, Deserialize};
-use serenity::model::{guild::Role, id::GuildId, user::User};
+use serenity::{model::{guild::Role, id::GuildId, user::User}, prelude::TypeMapKey};
 
+use tokio::sync::RwLock;
+
+pub(crate) type BotData = HashMap<GuildId, ServerData>;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct BotData {
-    servers: HashMap<GuildId, ServerData>,
+pub(crate) struct GameData;
+
+impl TypeMapKey for GameData {
+    type Value = Arc<RwLock<BotData>>;
 }
 
 #[derive(Debug, Serialize, Deserialize)]

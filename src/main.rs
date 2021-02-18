@@ -1,7 +1,7 @@
 use async_std::fs::File;
 use async_std::path::Path;
 
-use std::{collections::HashSet, env};
+use std::{collections::{HashMap, HashSet}, env, sync::Arc};
 
 use serenity::prelude::*;
 use serenity::{
@@ -23,7 +23,9 @@ mod commands;
 mod data;
 mod sprite;
 mod utils;
+
 use commands::{admin::*, debug::*, gm_tools::*};
+use data::GameData;
 
 const COMMAND_PREFIX: &str = "~";
 
@@ -132,13 +134,6 @@ async fn main() {
     // Set Gateway Intents
     let intents = GatewayIntents::all();
 
-    // Get data if it exists
-    let data = Path::new("data/bot.json");
-    let res = utils::import_json(data).await;
-    if res.is_ok() {
-        println!("Successfully imported existing data!")
-    }
-
     // Log in
     let mut client = Client::builder(&token)
         .event_handler(Handler)
@@ -146,6 +141,20 @@ async fn main() {
         .intents(intents)
         .await
         .expect("Error while creating client!");
+
+    // Get data if it exists, otherwise create empty map
+    // Inside a block to minimize the scope of the rwlock
+    {
+        let path = Path::new("data/bot.json");
+        let mut data = client.data.write().await;
+        if let Ok(bot_data) = utils::import_json(path).await {
+            data.insert::<GameData>(Arc::new(RwLock::new(bot_data)));
+            println!("Successfully imported existing data!")
+        } else {
+            data.insert::<GameData>(Arc::new(RwLock::new(HashMap::new())));
+        }
+    }
+
 
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
