@@ -1,5 +1,7 @@
 use async_std::fs::File;
 use async_std::io::prelude::ReadExt;
+
+use anyhow::Result;
 use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username, parse_role}};
 
 use crate::data::*;
@@ -73,12 +75,12 @@ pub(crate) async fn get_role(ctx: &Context, msg: &Message, role_name: &str) -> O
 }
 
 /// Import data from json file
-pub(crate) async fn import_json(path: &async_std::path::Path) -> async_std::io::Result<()> {
+pub(crate) async fn import_json(path: &async_std::path::Path) -> Result<BotData> {
     let mut file = File::open(path).await?;
     let mut contents = String::new();
     file.read_to_string(&mut contents).await?;
 
-    let data: Result<BotData, serde_json::Error> = serde_json::de::from_str(&contents);
+    let data: BotData = serde_json::de::from_str(&contents)?;
 
-    Ok(())
+    Ok(data)
 }

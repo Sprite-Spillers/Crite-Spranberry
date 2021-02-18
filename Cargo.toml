@@ -6,6 +6,7 @@ edition = "2018"
 
 
 [dependencies]
+anyhow = "1.x"
 async-std = "1.x"
 dotenv = "0.15"
 serde = { version = "1.0", features = ["derive"] }
