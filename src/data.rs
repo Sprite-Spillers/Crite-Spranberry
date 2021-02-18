@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use serde::{Serialize, Deserialize};
-use serenity::{model::{guild::Role, id::GuildId, user::User}, prelude::TypeMapKey};
+use serenity::{model::{guild::{Member, Role}, id::GuildId}, prelude::TypeMapKey};
 
 use tokio::sync::RwLock;
 
@@ -16,11 +16,11 @@ impl TypeMapKey for GameData {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct ServerData {
-    games: HashMap<String, Game>,
+    pub(crate) games: HashMap<String, Game>,
 }
 
 impl ServerData {
-    pub(crate) fn new_game(&mut self, name: String, owner: User, role: Role) {
+    pub(crate) fn new_game(&mut self, name: String, owner: Member, role: Role) {
         self.games.insert(name.clone(), Game::new(name, owner, role));
     }
 }
@@ -28,14 +28,14 @@ impl ServerData {
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Game {
     name: String,
-    owner: User,
+    owner: Member,
     role: Role,
-    admins: Vec<User>,
-    players: Vec<User>,
+    admins: Vec<Member>,
+    players: Vec<Member>,
 }
 
 impl Game {
-    pub(crate) fn new(name: String, owner: User, role: Role) -> Game {
+    pub(crate) fn new(name: String, owner: Member, role: Role) -> Game {
         Game { name, owner, role, admins: Vec::new(), players: Vec::new() }
     }
 }

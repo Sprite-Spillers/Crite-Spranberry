@@ -1,12 +1,15 @@
 //! Tools for GMs/DMs
 
-use crate::utils::*;
+use std::collections::HashMap;
 
 use serenity::model::prelude::*;
 use serenity::prelude::*;
 use serenity::framework::standard::{macros::command, Args, CommandResult};
 
 use serde_json::{map::Map, value::Value};
+
+use crate::data::*;
+use crate::utils::*;
 
 /// Create a new game and associated role, and assigns the role to the caller
 /// 
@@ -15,19 +18,28 @@ use serde_json::{map::Map, value::Value};
 pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
     args.quoted();
     args.trimmed();
-    
+
     let http = &ctx.http;
     let guild = msg.guild_id.expect("Failed to get guild ID!");
     let name = args.single::<String>().unwrap();
     let role = guild
-        .create_role(http, |r| r.hoist(true).name(name))
+        .create_role(http, |r| r.hoist(false).name(name))
         .await
         .expect("Failed to create role!");
-    
+
     let mut creator = get_member(ctx, msg, &msg.author.name).await.unwrap();
     creator.add_role(&ctx.http, role.id).await?;
 
+    let counter_lock = {
+        let data_read = ctx.data.read().await;
+        data_read.get::<GameData>().expect("Couldn't find GameData in ctx.data").clone()
+    };
 
+    {
+        let mut guard = counter_lock.write().await;
+        let server = guard.entry(msg.guild_id.unwrap()).or_insert(ServerData { games: HashMap::new() });
+        server.new_game(role.name.clone(), creator, role);
+    }
 
     msg.channel_id
         .say(&ctx.http, "Created <game> role!")

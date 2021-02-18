@@ -101,7 +101,7 @@ async fn main() {
     let http = Http::new_with_token(&token);
 
     // Get bot owners and ID
-    let (owners, bot_id) = match http.get_current_application_info().await {
+    let (owners, _bot_id) = match http.get_current_application_info().await {
         Ok(info) => {
             let mut owners = HashSet::new();
             if let Some(team) = info.team {
@@ -130,7 +130,7 @@ async fn main() {
         .group(&ADMIN_GROUP)
         .group(&DEBUG_GROUP)
         .group(&GAME_GROUP);
-    
+
     // Set Gateway Intents
     let intents = GatewayIntents::all();
 
