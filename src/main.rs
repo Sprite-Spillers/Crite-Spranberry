@@ -134,7 +134,10 @@ async fn main() {
 
     // Get data if it exists
     let data = Path::new("data/bot.json");
-    utils::import_json(data).await;
+    let res = utils::import_json(data).await;
+    if res.is_ok() {
+        println!("Successfully imported existing data!")
+    }
 
     // Log in
     let mut client = Client::builder(&token)
