@@ -2,8 +2,8 @@
 
 use std::collections::HashMap;
 
-use serenity::model::prelude::*;
 use serenity::prelude::*;
+use serenity::model::prelude::*;
 use serenity::framework::standard::{macros::command, Args, CommandResult};
 
 use serde_json::{map::Map, value::Value};
@@ -26,23 +26,24 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         .create_role(http, |r| r.hoist(false).name(name))
         .await
         .expect("Failed to create role!");
+    let role_name = role.name.clone();
 
     let mut creator = get_member(ctx, msg, &msg.author.name).await.unwrap();
     creator.add_role(&ctx.http, role.id).await?;
 
     let data_lock = {
         let data_read = ctx.data.read().await;
-        data_read.get::<GameData>().expect("Couldn't find GameData in ctx.data").clone()
+        data_read.get::<BotData>().expect("Couldn't find GameData in ctx.data").clone()
     };
 
     {
         let mut guard = data_lock.write().await;
         let server = guard.entry(msg.guild_id.unwrap()).or_insert(ServerData { games: HashMap::new() });
-        server.new_game(role.name.clone(), creator, role);
+        server.new_game(role_name.clone(), creator, role);
     }
 
     msg.channel_id
-        .say(&ctx.http, "Created <game> role!")
+        .say(&ctx.http, format!("Created role: {}!", role_name))
         .await?;
 
     Ok(())
@@ -83,7 +84,7 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
             // Add to data
             let data_lock = {
                 let data_read = ctx.data.read().await;
-                data_read.get::<GameData>().expect("Couldn't find GameData in ctx.data").clone()
+                data_read.get::<BotData>().expect("Couldn't find GameData in ctx.data").clone()
             };
 
             {

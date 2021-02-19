@@ -1,7 +1,5 @@
-// use crate::utils::*;
-
-use serenity::model::prelude::*;
 use serenity::prelude::*;
+use serenity::model::prelude::*;
 use serenity::framework::standard::{macros::command, CommandResult};
 
 /// Print out a list of all members in the server

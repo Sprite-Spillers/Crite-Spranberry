@@ -1,8 +1,9 @@
+use std::env;
 use std::fs;
 use std::fs::File;
 use std::path::Path;
-
-use std::{collections::{HashMap, HashSet}, env, sync::Arc};
+use std::sync::Arc;
+use std::collections::{HashMap, HashSet};
 
 use serenity::prelude::*;
 use serenity::{
@@ -26,7 +27,7 @@ mod sprite;
 mod utils;
 
 use commands::{admin::*, debug::*, gm_tools::*};
-use data::GameData;
+use data::BotData;
 
 const COMMAND_PREFIX: &str = "~";
 
@@ -151,10 +152,10 @@ async fn main() {
         let path = Path::new("data/bot.json");
         let mut data = client.data.write().await;
         if let Ok(bot_data) = utils::import_json(path).await {
-            data.insert::<GameData>(Arc::new(RwLock::new(bot_data)));
+            data.insert::<BotData>(Arc::new(RwLock::new(bot_data)));
             println!("Successfully imported existing data!")
         } else {
-            data.insert::<GameData>(Arc::new(RwLock::new(HashMap::new())));
+            data.insert::<BotData>(Arc::new(RwLock::new(HashMap::new())));
         }
     }
 

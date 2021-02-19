@@ -1,9 +1,10 @@
 //! Admin tools
 
 use std::path::Path;
-use serenity::{framework::standard::{macros::command, Args, CommandResult}, http::AttachmentType};
-use serenity::model::prelude::*;
+
 use serenity::prelude::*;
+use serenity::model::prelude::*;
+use serenity::{framework::standard::{macros::command, Args, CommandResult}, http::AttachmentType};
 
 use crate::{data::*, utils};
 
@@ -14,7 +15,7 @@ pub async fn export(ctx: &Context, msg: &Message, _: Args) -> CommandResult {
 
     let data_lock = {
         let data_read = ctx.data.read().await;
-        data_read.get::<GameData>().expect("Couldn't find GameData in ctx.data").clone()
+        data_read.get::<BotData>().expect("Couldn't find GameData in ctx.data").clone()
     };
 
     {
@@ -34,7 +35,7 @@ pub async fn export(ctx: &Context, msg: &Message, _: Args) -> CommandResult {
             }).await;
 
             if let Err(why) = msg {
-                println!("Error sending message: {:?}", why);
+                println!("Error sending data: {:?}", why);
             }
         }
     }

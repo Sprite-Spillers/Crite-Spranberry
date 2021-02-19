@@ -1,4 +1,8 @@
-use std::{fs::File, io::{Read, Write}, path::Path};
+use std::{
+    path::Path,
+    fs::File,
+    io::{Read, Write},
+};
 
 use anyhow::Result;
 use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username, parse_role}};
@@ -74,18 +78,18 @@ pub(crate) async fn get_role(ctx: &Context, msg: &Message, role_name: &str) -> O
 }
 
 /// Import data from json file
-pub(crate) async fn import_json(path: &Path) -> Result<BotData> {
+pub(crate) async fn import_json(path: &Path) -> Result<BotDataMap> {
     let mut file = File::open(path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let data: BotData = serde_json::de::from_str(&contents)?;
+    let data: BotDataMap = serde_json::de::from_str(&contents)?;
 
     Ok(data)
 }
 
 /// Export data to json file
-pub(crate) async fn export_json(data: &BotData, filename: &str) -> Result<()> {
+pub(crate) async fn export_json(data: &BotDataMap, filename: &str) -> Result<()> {
     let json = serde_json::to_string(&data)?;
     let mut f = File::create(filename)?;
     f.write_all(&json.into_bytes())?;

@@ -5,13 +5,13 @@ use serenity::{model::{guild::{Member, Role}, id::GuildId}, prelude::TypeMapKey}
 
 use tokio::sync::RwLock;
 
-pub(crate) type BotData = HashMap<GuildId, ServerData>;
+pub(crate) type BotDataMap = HashMap<GuildId, ServerData>;
 
 #[derive(Debug, Serialize, Deserialize)]
-pub(crate) struct GameData;
+pub(crate) struct BotData;
 
-impl TypeMapKey for GameData {
-    type Value = Arc<RwLock<BotData>>;
+impl TypeMapKey for BotData {
+    type Value = Arc<RwLock<BotDataMap>>;
 }
 
 #[derive(Debug, Serialize, Deserialize)]
