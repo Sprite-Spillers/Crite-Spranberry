@@ -27,11 +27,11 @@ impl ServerData {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub(crate) struct Game {
-    name: String,
-    owner: Member,
-    role: Role,
-    admins: Vec<Member>,
-    players: Vec<Member>,
+    pub(crate) name: String,
+    pub(crate) owner: Member,
+    pub(crate) role: Role,
+    pub(crate) admins: Vec<Member>,
+    pub(crate) players: Vec<Member>,
 }
 
 impl Game {

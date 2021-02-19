@@ -1,4 +1,4 @@
-use async_std::fs::File;
+use async_std::{fs::File, io::prelude::WriteExt};
 use async_std::io::prelude::ReadExt;
 
 use anyhow::Result;
@@ -30,8 +30,8 @@ pub(crate) async fn get_member(ctx: &Context, msg: &Message, member_name: &str) 
             }
         }
     }
-    
-    return None;
+
+    None
 }
 
 /// Searches for a channel given the context, message, and channel name/mention
@@ -50,8 +50,8 @@ pub(crate) async fn get_channel(ctx: &Context, msg: &Message, channel_name: &str
             }
         }
     }
-    
-    return None;
+
+    None
 }
 
 /// Searches for a role given the context, message, and role name/mention
@@ -70,8 +70,8 @@ pub(crate) async fn get_role(ctx: &Context, msg: &Message, role_name: &str) -> O
             }
         }
     }
-    
-    return None;
+
+    None
 }
 
 /// Import data from json file
@@ -83,4 +83,13 @@ pub(crate) async fn import_json(path: &async_std::path::Path) -> Result<BotData>
     let data: BotData = serde_json::de::from_str(&contents)?;
 
     Ok(data)
+}
+
+/// Export data to json file
+pub(crate) async fn export_json(data: &BotData, filename: &str) -> Result<()> {
+    let json = serde_json::to_string(&data)?;
+    let mut f = File::create(filename).await?;
+    f.write_all(&json.into_bytes()).await?;
+
+    Ok(())
 }

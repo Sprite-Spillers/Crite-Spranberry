@@ -30,13 +30,13 @@ pub async fn create(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
     let mut creator = get_member(ctx, msg, &msg.author.name).await.unwrap();
     creator.add_role(&ctx.http, role.id).await?;
 
-    let counter_lock = {
+    let data_lock = {
         let data_read = ctx.data.read().await;
         data_read.get::<GameData>().expect("Couldn't find GameData in ctx.data").clone()
     };
 
     {
-        let mut guard = counter_lock.write().await;
+        let mut guard = data_lock.write().await;
         let server = guard.entry(msg.guild_id.unwrap()).or_insert(ServerData { games: HashMap::new() });
         server.new_game(role.name.clone(), creator, role);
     }
@@ -79,6 +79,26 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
         if let Some(mut member) = member_option {
             // Add role to user
             member.add_role(&ctx.http, role.id).await?;
+
+            // Add to data
+            let data_lock = {
+                let data_read = ctx.data.read().await;
+                data_read.get::<GameData>().expect("Couldn't find GameData in ctx.data").clone()
+            };
+
+            {
+                let mut guard = data_lock.write().await;
+                if let Some(server) = guard.get_mut(&msg.guild_id.unwrap()) {
+                    if let Some(game) = server.games.get_mut(role_name) {
+                        game.players.push(member.clone());
+                    } else {
+                        msg.channel_id
+                        .say(&ctx.http, "Couldn't find existing data for that game")
+                        .await?;
+                    }
+                }
+            }
+
             msg.channel_id
             .say(&ctx.http, format!("Added {} to \"{}\"!", member.display_name(), role_name))
             .await?;
