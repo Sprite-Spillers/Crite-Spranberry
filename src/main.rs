@@ -5,18 +5,20 @@ use std::path::Path;
 use std::sync::Arc;
 use std::collections::{HashMap, HashSet};
 
-use serenity::prelude::*;
 use serenity::{
+    prelude::*,
     async_trait,
     client::bridge::gateway::GatewayIntents,
     framework::standard::{
-        macros::{group, hook},
+        Args, CommandOptions, Reason,
+        macros::{check, group, hook},
         StandardFramework,
     },
     http::Http,
     model::{
         channel::Message,
         gateway::Ready,
+        Permissions
     }
 };
 
@@ -26,12 +28,13 @@ mod data;
 mod sprite;
 mod utils;
 
-use commands::{admin::*, debug::*, gm_tools::*};
+use commands::{admin::*, debug::*, roles::*};
 use data::BotData;
 
 const COMMAND_PREFIX: &str = "~";
 
 #[group]
+#[required_permissions("ADMINISTRATOR")]
 #[commands(export)]
 struct Admin;
 
@@ -41,11 +44,29 @@ struct Admin;
 struct Debug;
 
 #[group]
-#[prefix = "game"]
-#[description = "Tools for GMs to manage their games"]
+#[prefix = "role"]
+#[checks(ManageRoles)]
+#[description = "Tools for managing roles"]
 #[only_in("guilds")]
 #[commands(create, invite, remove, rename)]
 struct Game;
+
+
+#[check]
+#[name = "ManageRoles"]
+async fn role_manager_check(ctx: &Context, msg: &Message, _: &mut Args, _: &CommandOptions) -> Result<(), Reason> {
+    if let Some(member) = &msg.member {
+        for role in &member.roles {
+            if let Some(role) = role.to_role_cached(&ctx.cache).await {
+                if role.has_permission(Permissions::MANAGE_ROLES) || role.name == "DMs" {
+                    return Ok(());
+                }
+            }
+        }
+    }
+
+    Err(Reason::User("User doesn't have permission to manage roles.".to_string()))
+}
 
 
 // Event handler

@@ -84,7 +84,7 @@ pub async fn invite(ctx: &Context, msg: &Message, mut args: Args) -> CommandResu
             // Add to data
             let data_lock = {
                 let data_read = ctx.data.read().await;
-                data_read.get::<BotData>().expect("Couldn't find GameData in ctx.data").clone()
+                data_read.get::<BotData>().expect("Couldn't find BotData in ctx.data").clone()
             };
 
             {
@@ -172,3 +172,39 @@ pub async fn add_channels(ctx: &Context, msg: &Message, mut args: Args) -> Comma
 
     Ok(())
 }
+
+/// Add a role to the list of games with a given owner
+#[command]
+#[aliases("import")]
+pub async fn role_import(ctx: &Context, msg: &Message, mut args: Args) -> CommandResult {
+    args.quoted();
+    args.trimmed();
+
+    let role_to_find = args.single::<String>().unwrap();
+    let role_option = get_role(ctx, msg, &role_to_find).await;
+
+    // Couldn't find role, print message and quit
+    if role_option.is_none() {
+        msg.channel_id
+        .say(&ctx.http, format!("Couldn't find the role: {}!", role_to_find))
+        .await?;
+        // TODO: Return an error
+        return Ok(());
+    }
+
+    let role = role_option.unwrap();
+    let role_name = &role.name;
+
+    let data_lock = {
+        let data_read = ctx.data.read().await;
+        data_read.get::<BotData>().expect("Couldn't find GameData in ctx.data").clone()
+    };
+
+    {
+        let mut guard = data_lock.write().await;
+        let server = guard.entry(msg.guild_id.unwrap()).or_insert(ServerData { games: HashMap::new() });
+    }
+
+    Ok(())
+}
+
