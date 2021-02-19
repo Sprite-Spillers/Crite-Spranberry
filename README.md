@@ -1,5 +1,5 @@
 # Crite Spranberry
 
-![GitHub branch checks state](https://img.shields.io/github/checks-status/Sprite-Spillers/Crite-Spranberry/main)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Sprite-Spillers/Crite-Spranberry/CI)
 
 A Discord bot for various moderation things
