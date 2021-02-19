@@ -1,5 +1,6 @@
-use async_std::fs::File;
-use async_std::path::Path;
+use std::fs;
+use std::fs::File;
+use std::path::Path;
 
 use std::{collections::{HashMap, HashSet}, env, sync::Arc};
 
@@ -81,13 +82,15 @@ async fn unknown_command(_ctx: &Context, _msg: &Message, unknown_command_name: &
 // Start the bot
 #[tokio::main]
 async fn main() {
+    // Try getting environment variables
     let res = env::var("DISCORD_TOKEN");
     let dotenv_path = Path::new(".env");
+
+    // Env vars not found, import from file
     if res.is_err() {
         // If dotenv file not found, create empty file and exit
-        if !dotenv_path.exists().await {
+        if !dotenv_path.exists() {
             File::create(dotenv_path)
-                .await
                 .expect("Error while creating empty .env file!");
             println!(".env file not found! Creating empty file and exiting");
             return;
@@ -155,7 +158,12 @@ async fn main() {
         }
     }
 
+    // Create folder for exports
+    if let Err(e) = fs::create_dir("exports") {
+        println!("Error creating export dir: {:?}", e)
+    }
 
+    // Start client
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
     }
