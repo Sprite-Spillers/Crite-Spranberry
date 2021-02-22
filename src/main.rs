@@ -111,11 +111,13 @@ async fn main() {
 
     // Env vars not found, import from file
     if res.is_err() {
+        println!("Environment variables not found, trying .env file");
+
         // If dotenv file not found, create empty file and exit
         if !dotenv_path.exists() {
+            println!(".env file not found! Creating empty file and exiting");
             File::create(dotenv_path)
                 .expect("Error while creating empty .env file!");
-            println!(".env file not found! Creating empty file and exiting");
             std::process::exit(1);
         }
 
@@ -123,6 +125,7 @@ async fn main() {
     }
 
     let token = env::var("DISCORD_TOKEN").expect("Error while getting token from environment!");
+    println!("Found bot token!");
 
     let http = Http::new_with_token(&token);
 
@@ -184,16 +187,19 @@ async fn main() {
         } else {
             // Otherwise create empty map
             data.insert::<BotData>(Arc::new(RwLock::new(HashMap::new())));
+            println!("Couldn't find data to import, initializing with empty map")
         }
     }
 
     // Create folder for exports
-    if let Err(e) = fs::create_dir("exports") {
+    if let Err(e) = fs::create_dir_all("exports") {
         println!("Error creating export dir: {:?}", e)
     }
 
     // Start client
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
+    } else {
+        println!("Bot started successfully!");
     }
 }
