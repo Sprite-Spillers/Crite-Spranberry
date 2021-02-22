@@ -77,6 +77,22 @@ pub(crate) async fn get_role(ctx: &Context, msg: &Message, role_name: &str) -> O
     None
 }
 
+/// Searches for an emoji given the context, message, and role name/mention
+pub(crate) async fn get_emoji(ctx: &Context, msg: &Message, emoji_name: &str) -> Option<Emoji> {
+    let channel = msg.channel(&ctx.cache).await?;
+    let guild_channel = channel.guild()?;
+
+    if let Ok(emojis) = guild_channel.guild_id.emojis(&ctx.http).await {
+        for emoji in emojis {
+            if emoji.name.to_lowercase() == emoji_name.to_lowercase() {
+                return Some(emoji);
+            }
+        }
+    }
+
+    return None;
+}
+
 /// Import data from json file
 pub(crate) async fn import_json(path: &Path) -> Result<BotDataMap> {
     let mut file = File::open(path)?;
