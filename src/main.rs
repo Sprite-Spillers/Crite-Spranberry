@@ -80,6 +80,7 @@ impl EventHandler for Handler {
 
     async fn message(&self, ctx: Context, msg: Message) {
         sprite::octopus_check(&ctx, &msg).await;
+        sprite::groundhog_check(&ctx, &msg).await;
     }
 }
 

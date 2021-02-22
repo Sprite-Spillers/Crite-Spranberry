@@ -12,3 +12,10 @@ pub(crate) async fn octopus_check(ctx: &Context, msg: &Message) {
         };
     }
 }
+
+pub(crate) async fn groundhog_check(ctx: &Context, msg: &Message) {
+    // Hope you don't get stuck in a time loop
+    if msg.content.to_lowercase().contains("happy groundhog's day") {
+        let _ = msg.react(ctx, '🔄').await;
+    }
+}
