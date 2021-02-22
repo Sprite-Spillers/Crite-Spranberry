@@ -1,8 +1,4 @@
-use std::{
-    path::Path,
-    fs::File,
-    io::{Read, Write},
-};
+use std::{env, fs::File, io::{Read, Write}, path::Path};
 
 use anyhow::Result;
 use serenity::{model::prelude::*, prelude::*, utils::{parse_channel, parse_username, parse_role}};
@@ -93,15 +89,35 @@ pub(crate) async fn get_emoji(ctx: &Context, msg: &Message, emoji_name: &str) ->
     return None;
 }
 
+
+/// Import data from string
+pub(crate) async fn import_from_string(string: &str) -> Result<BotDataMap> {
+    let data: BotDataMap = serde_json::de::from_str(&string)?;
+
+    Ok(data)
+}
+
+/// Import data from url
+pub(crate) async fn import_from_url(url: &str) -> Result<BotDataMap> {
+    let response = reqwest::get(url).await?;
+    let text = response.text().await?;
+
+    import_from_string(&text).await
+}
+
+/// Import from github
+pub(crate) async fn import_from_github() -> Result<BotDataMap> {
+    let url = env::var("DATA_URL")?;
+    import_from_url(&url).await
+}
+
 /// Import data from json file
 pub(crate) async fn import_json(path: &Path) -> Result<BotDataMap> {
     let mut file = File::open(path)?;
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let data: BotDataMap = serde_json::de::from_str(&contents)?;
-
-    Ok(data)
+    import_from_string(&contents).await
 }
 
 /// Export data to json file

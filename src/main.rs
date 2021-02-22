@@ -116,7 +116,7 @@ async fn main() {
             File::create(dotenv_path)
                 .expect("Error while creating empty .env file!");
             println!(".env file not found! Creating empty file and exiting");
-            return;
+            std::process::exit(1);
         }
 
         dotenv::from_path(dotenv_path).expect("Error while loading environment variables!");
@@ -168,15 +168,21 @@ async fn main() {
         .await
         .expect("Error while creating client!");
 
-    // Get data if it exists, otherwise create empty map
+    // Get data if it exists, otherwise create empty map.
     // Inside a block to minimize the scope of the rwlock
     {
         let path = Path::new("data/bot.json");
         let mut data = client.data.write().await;
         if let Ok(bot_data) = utils::import_json(path).await {
+            // Try local file first
             data.insert::<BotData>(Arc::new(RwLock::new(bot_data)));
-            println!("Successfully imported existing data!")
+            println!("Successfully imported existing data from file!")
+        } else if let Ok(bot_data) = utils::import_from_github().await {
+            // Try github
+            data.insert::<BotData>(Arc::new(RwLock::new(bot_data)));
+            println!("Successfully imported existing data from Github!")
         } else {
+            // Otherwise create empty map
             data.insert::<BotData>(Arc::new(RwLock::new(HashMap::new())));
         }
     }
