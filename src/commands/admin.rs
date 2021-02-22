@@ -1,6 +1,5 @@
 //! Admin tools
 
-use std::collections::HashMap;
 use std::path::Path;
 
 use serenity::prelude::*;
