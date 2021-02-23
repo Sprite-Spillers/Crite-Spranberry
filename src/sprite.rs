@@ -17,9 +17,9 @@ pub(crate) async fn groundhog_check(ctx: &Context, msg: &Message) {
     // Hope you don't get stuck in a time loop
     let r = env::var("GROUNDHOG");
     if let Ok(id) = r {
-        if *msg.author.id.as_u64().to_string() == id
-            && msg.content.to_lowercase().contains("happy")
-            && msg.content.to_lowercase().contains("groundhog") {
+        if msg.content.to_lowercase().contains("happy")
+            && msg.content.to_lowercase().contains("groundhog")
+            && msg.content.to_lowercase().contains("day") {
             let _ = msg.react(ctx, '🔄').await;
         }
     }
