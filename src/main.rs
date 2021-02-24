@@ -68,7 +68,6 @@ async fn role_manager_check(ctx: &Context, msg: &Message, _: &mut Args, _: &Comm
     Err(Reason::User("User doesn't have permission to manage roles.".to_string()))
 }
 
-
 // Event handler
 struct Handler;
 
@@ -79,8 +78,12 @@ impl EventHandler for Handler {
     }
 
     async fn message(&self, ctx: Context, msg: Message) {
-        sprite::octopus_check(&ctx, &msg).await;
-        sprite::groundhog_check(&ctx, &msg).await;
+        if let Some(guild_id) = msg.guild_id {
+            if guild_id.as_u64().to_string() == env::var("SPRITE_ID").unwrap_or_default() {
+                sprite::octopus_check(&ctx, &msg).await;
+                sprite::groundhog_check(&ctx, &msg).await;
+            }
+        }
     }
 }
 
