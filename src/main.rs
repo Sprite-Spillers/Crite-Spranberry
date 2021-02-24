@@ -199,7 +199,5 @@ async fn main() {
     // Start client
     if let Err(why) = client.start().await {
         println!("Client error: {:?}", why);
-    } else {
-        println!("Bot started successfully!");
     }
 }
