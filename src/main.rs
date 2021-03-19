@@ -30,6 +30,7 @@ mod utils;
 
 use commands::{admin::*, debug::*, roles::*};
 use data::BotData;
+use tokio::join;
 
 const COMMAND_PREFIX: &str = "~";
 
@@ -80,8 +81,10 @@ impl EventHandler for Handler {
     async fn message(&self, ctx: Context, msg: Message) {
         if let Some(guild_id) = msg.guild_id {
             if guild_id.as_u64().to_string() == env::var("SPRITE_ID").unwrap_or_default() {
-                sprite::octopus_check(&ctx, &msg).await;
-                sprite::groundhog_check(&ctx, &msg).await;
+                join!(
+                    sprite::octopus_check(&ctx, &msg),
+                    sprite::groundhog_check(&ctx, &msg)
+                );
             }
         }
     }
